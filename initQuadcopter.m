@@ -7,7 +7,7 @@ CNST.g = 9.81;
 CNTR.FSTEP = 200;
 CNTR.TSTEP = 1.0/CNTR.FSTEP;
 
-% Motor Parameters
+% Motor Parametersgit st
 MOTR.RL = 0.1;
 MOTR.LL = 0.03e-3;
 MOTR.RP = MOTR.RL/2;
