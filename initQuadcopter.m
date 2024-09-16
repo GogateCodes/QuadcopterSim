@@ -2,7 +2,7 @@ CNFG_FSTEP = 300000;
 CNFG_TSTEP = 1.0/CNFG_FSTEP;
 CNFG_TEND = 2;
 
-CNST.g = 9.81;
+CNST.g =9.81;
 
 CNTR.FSTEP = 200;
 CNTR.TSTEP = 1.0/CNTR.FSTEP;
@@ -15,7 +15,7 @@ MOTR.LD = MOTR.LL/2;
 MOTR.LQ = MOTR.LL/2;
 MOTR.NP = 6;
 MOTR.NPP = MOTR.NP/2;
-MOTR.KB = 0.0184*2/3;
+MOTR.KB = 0.05*2/3;
 MOTR.KT = MOTR.KB;
 MOTR.J = 0.58e-6;
 MOTR.B = 0.43e-6;
@@ -24,7 +24,7 @@ MOTR.D = 0;
 % Propeller Parameters
 PROP.L = 5.5;
 PROP.Pitch = 50;
-PROP.CL = 1.5*9.81/1e6; % 10000 PRM ~ 1000 rad/s -> 1000g Thrust  ~ 9.81 Nm  
+PROP.CL = 9.81/1000; % 10000 PRM ~ 1000 rad/s -> 1000g Thrust  ~ 9.81 Nm  
 PROP.CD = 0.8*PROP.CL;
 
 % Quadcopter Parameters
@@ -47,6 +47,10 @@ QUAD.PitchMap = [1,1,-1,-1];
 QUAD.RollMap = [-1,1,1,-1];
 
 QUAD.VelMap = [1,1,1,1];
+
+QUAD.RollIC = 0.3;
+QUAD.PitchIC =0.3;
+Quad.YawIC = 0;
 
 BATT.V = 11.1;
 
