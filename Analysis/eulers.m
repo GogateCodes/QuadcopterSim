@@ -30,20 +30,18 @@ G_I = [0,0,-1];
 
 %%
 
-Yaw     = 0*pi/180; % About Z Axis
-Pitch   = 130*pi/180; % About Y Axis
-Roll    = 130*pi/180; % About X Axis
+Yaw =  20*pi/180; % About Z Axis
+Pitch = -10*pi/180; % About Y Axis
+Roll =  -30*pi/180; % About X Axis
 
 Q_I2 = reshape(Q_I,[20,3]);
-Q_R2 = RotateVector(Q_I2, Yaw, Pitch, Roll, 'ZYX');
+Q_R2 = fnRotVec(Q_I2, Yaw, Pitch, Roll, 'ZYX');
 Q_R = reshape(Q_R2,[4,5,3]);
 
-Ax_R = RotateVector(Ax_I, Yaw, Pitch, Roll, 'ZYX');
-
-g_R = RotateVector(g_vec, Yaw, Pitch, Roll, 'ZYX');
+Ax_R = fnRotVec(Ax_I, Yaw, Pitch, Roll, 'ZYX');
 
 figure(1);clf;hold on;
-
+title("Inertial Frame")
 surf(Q_I(:,:,1),Q_I(:,:,2),Q_I(:,:,3),'FaceColor',[0    0.2    0.5],'FaceAlpha',0.4)
 surf(Q_R(:,:,1),Q_R(:,:,2),Q_R(:,:,3),'FaceColor',[0.5    0    0.2],'FaceAlpha',0.4)
 
@@ -52,7 +50,6 @@ plotAxes(Ax_R,1.5,1,':')
 plotGrav(G_I,1)
 view(-45,30)
 
-% set(fig.CurrentAxes,"XLim",[-1.5 1.5],"YLim",[-1.5 1.5],"ZLim",[-1.5 1.5]);
 xlim([-1.5 1.5])
 ylim([-1.5 1.5])
 zlim([-1.5 1.5])
@@ -61,18 +58,32 @@ ylabel("y")
 zlabel("z")
 grid on
 
-% Q_B2 = reshape(Q_R,[20,3]);
-% Q_R2 = RotateVector(Q_I2, Yaw, Pitch, Roll, 'ZYX');
-% Q_R = reshape(Q_R2,[4,5,3]);
+Q_R2 = reshape(Q_R,[20,3]);
+Q_B2 = fnRotVecInv(Q_R2, Yaw, Pitch, Roll, 'ZYX');
+Q_B = reshape(Q_B2,[4,5,3]);
 
-Ax_B = RotateVectorT(Ax_R, Yaw, Pitch, Roll, 'ZYX');
+Ax_B = fnRotVecInv(Ax_R, Yaw, Pitch, Roll, 'ZYX');
 
-G_B = RotateVectorT(G_I, Yaw, Pitch, Roll, 'ZYX');
+G_B = fnRotVecInv(G_I, Yaw, Pitch, Roll, 'ZYX');
 
 figure(2);clf;hold on;
+title("Body Frame")
+surf(Q_B(:,:,1),Q_B(:,:,2),Q_B(:,:,3),'FaceColor',[0.5    0    0.2],'FaceAlpha',0.4)
+
 plotAxes(Ax_B,1.5,2,':')
 plotGrav(G_B,2)
 view(-45,30)
+xlim([-1.5 1.5])
+ylim([-1.5 1.5])
+zlim([-1.5 1.5])
+xlabel("x")
+ylabel("y")
+zlabel("z")
+grid on
+
+Pitch_Est = atan2(G_B(1),(G_B(2)^2 + G_B(3)^2)^0.5)*180/pi
+Roll_Est = atan2(-G_B(2),-G_B(3))*180/pi
+
 %%
 function plotAxes(V,scale,fig,props)
     figure(fig)
@@ -89,88 +100,4 @@ function plotGrav(V,fig)
     Vx = V(1,:);
     quiver3(0,0,0,Vx(1),Vx(2),Vx(3),"Color",'k',"LineWidth",2)
 
-end
-
-function [Vout] = RotateVector(V, Yaw, Pitch, Roll, Method)
-    if strcmp(Method,'ZYX')
-        Vout = zeros(size(V));
-        for i = 1:size(V,1)
-                tmp = V(i,:)';
-                tmp = RotZB2I(Yaw) * RotYB2I(Pitch) * RotXB2I(Roll) * tmp;
-                Vout(i,:) = tmp';
-        end
-    elseif strcmp(Method,'XYZ')
-        Vout = zeros(size(V));
-        for i = 1:size(V,1)
-                tmp = V(i,:)';
-                tmp = RotXB2I(Roll) * RotYB2I(Pitch) * RotZB2I(Yaw) * tmp;
-                Vout(i,:) = tmp';
-        end
-    else
-        error("Method argument invalid. Select from: ['ZYX', 'XYZ']")
-    end
-    
-end
-
-function [Vout] = RotateVectorT(V, Yaw, Pitch, Roll, Method)
-    if strcmp(Method,'ZYX')
-        Vout = zeros(size(V));
-        for i = 1:size(V,1)
-                tmp = V(i,:)';
-                tmp = (RotZB2I(Yaw) * RotYB2I(Pitch) * RotXB2I(Roll))' * tmp;
-                Vout(i,:) = tmp';
-        end
-    elseif strcmp(Method,'XYZ')
-        Vout = zeros(size(V));
-        for i = 1:size(V,1)
-                tmp = V(i,:)';
-                tmp = (RotXB2I(Roll) * RotYB2I(Pitch) * RotZB2I(Yaw))' * tmp;
-                Vout(i,:) = tmp';
-        end
-    else
-        error("Method argument invalid. Select from: ['ZYX', 'XYZ']")
-    end
-    
-end
-
-% function [mat] = RotZI2B(t)
-% % I to B
-%     mat = [cos(t), sin(t), 0;...
-%         -sin(t), cos(t), 0;...
-%         0,0,1];
-% end
-% 
-% function [mat] = RotYI2B(t)
-% % I to B
-%     mat = [cos(t),0, -sin(t);...
-%         0,1,0;...
-%         sin(t), 0, cos(t)];
-% end
-% 
-% function [mat] = RotXI2B(t)
-% % I to B
-%     mat = [1,0,0;...
-%         0,cos(t), sin(t);...
-%         0,-sin(t), cos(t)];
-% end
-
-function [mat] = RotZB2I(t)
-% I to B
-    mat = [ cos(t), -sin(t), 0;...
-            sin(t),  cos(t), 0;...
-            0,       0,      1];
-end
-
-function [mat] = RotYB2I(t)
-% I to B
-    mat = [  cos(t),    0,  sin(t);...
-             0,         1,  0;...
-            -sin(t),    0,  cos(t)];
-end
-
-function [mat] = RotXB2I(t)
-% I to B
-    mat = [1,0,0;...
-        0,cos(t), -sin(t);...
-        0,sin(t), cos(t)];
 end

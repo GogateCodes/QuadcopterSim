@@ -48,9 +48,9 @@ QUAD.RollMap = [-1,1,1,-1];
 
 QUAD.VelMap = [1,1,1,1];
 
-QUAD.RollIC = 0.3;
-QUAD.PitchIC =0.3;
-Quad.YawIC = 0;
+QUAD.RollIC = 0.1;
+QUAD.PitchIC =0.0;
+Quad.YawIC = 0.0;
 
 BATT.V = 11.1;
 
